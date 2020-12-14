@@ -2,9 +2,8 @@
 class ShortUrl
 {
 
-    // database connection and table name
+    // database connection
     private $conn;
-    private $table_name = "short_urls";
 
     // object properties
     protected $short_code;
@@ -16,16 +15,98 @@ class ShortUrl
         $this->conn = $db;
     }
 
+    //GETTERS AND SETTERS
+
     //set long url
-    function setUrl($url)
+    function setLongUrl($url)
     {
         $this->long_url = $url;
     }
 
     //get long url
-    function getUrl()
+    function getLongUrl()
     {
         return $this->long_url;
     }
 
+    //set short code
+    function setShortCode($code)
+    {
+        $this->short_code = $code;
+    }
+
+    //get short code
+    function getShortCode()
+    {
+        return $this->short_code;
+    }
+
+    //END GETTERS AND SETTERS
+
+    //find the short code, using one from the db if it exists or making one otherwise
+    function findShortCode()
+    {
+        if ($this->long_url != null) {
+            $query = "SELECT short_code FROM short_urls WHERE long_url = ? LIMIT 1";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bind_param("s", $this->long_url);
+            if ($stmt->execute()) {
+                $result = $stmt->get_result();
+                $stmt->close();
+                if ($result->num_rows > 0) {
+
+                    //code exists in database - get it
+                    while ($data = $result->fetch_assoc()) {
+                        $short_code = $data['short_code'];
+                    }
+
+                    $this->setShortCode($short_code);
+                    return $this->short_code;
+
+                } else {
+
+                    //code does not exist in database - make one
+                    $query = "SELECT id FROM short_urls WHERE short_code = ?";
+                    $stmt = $this->conn->prepare($query);
+                    $is_unique = false;
+
+                    while ($is_unique == false) {
+
+                        //create a random shortcode
+                        $short_code = substr(md5(uniqid(rand(), true)), 0, 9);
+
+                        //check that it doesn't already exist
+                        $stmt->bind_param("s", $short_code);
+                        if ($stmt->execute()) {
+                            $result = $stmt->get_result();
+                            if ($result->num_rows == 0) {
+                                $is_unique = true;
+                            }
+                        }
+                    }
+
+                    $stmt->close();
+
+                    //store shortcode in db
+                    $query = "INSERT INTO short_urls (short_code, long_url) VALUES (?, ?)";
+                    $stmt = $this->conn->prepare($query);
+                    $stmt->bind_param("ss", $short_code, $this->long_url);
+
+                    //return stored shortcode
+                    if ($stmt->execute()) {
+                        $this->setShortCode($short_code);
+                        return $this->short_code;
+                    } else {
+                        return "Error: " . $stmt->error();
+                    }
+                    $stmt->close();
+                }
+
+            } else {
+
+                return "Error: " . $stmt->error;
+                $stmt->close();
+            }
+        }
+    }
 }

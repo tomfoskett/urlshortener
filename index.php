@@ -16,9 +16,9 @@ if (isset($_GET['url']) && $_GET['url'] != "") {
     if (filter_var($url, FILTER_VALIDATE_URL)) {
 
         $short_url = new ShortUrl($db);
-        $short_url->setUrl($url);
+        $short_url->setLongUrl($url);
 
-        echo $short_url->getUrl();
+        echo $short_url->findShortCode();
 
     } else {
         die("$url is not a valid URL");
