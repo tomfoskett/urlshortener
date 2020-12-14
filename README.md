@@ -15,5 +15,4 @@ To set up the urlshortener app:
   `short_code` varchar(11) NOT NULL,
   `long_url` varchar(512) NOT NULL,
   PRIMARY KEY (`id`)
-);
-```
+);```
