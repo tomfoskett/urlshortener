@@ -15,36 +15,20 @@ class ShortUrl
         $this->conn = $db;
     }
 
-    //GETTERS AND SETTERS
-
     //set long url
     function setLongUrl($url)
     {
         $this->long_url = $url;
     }
 
-    //get long url
-    function getLongUrl()
-    {
-        return $this->long_url;
-    }
-
     //set short code
-    function setShortCode($code)
+    function setShortCode($short_code)
     {
-        $this->short_code = $code;
+        $this->short_code = $short_code;
     }
 
-    //get short code
+    //get the short code, using one from the db if it exists or making one otherwise
     function getShortCode()
-    {
-        return $this->short_code;
-    }
-
-    //END GETTERS AND SETTERS
-
-    //find the short code, using one from the db if it exists or making one otherwise
-    function findShortCode()
     {
         if ($this->long_url != null) {
             $query = "SELECT short_code FROM short_urls WHERE long_url = ? LIMIT 1";
@@ -106,6 +90,40 @@ class ShortUrl
 
                 return "Error: " . $stmt->error;
                 $stmt->close();
+            }
+        }
+    }
+
+    //get the long url from the database
+    function getLongUrl()
+    {
+        if ($this->short_code != null) {
+
+            //get long url from database
+            $query = "SELECT long_url FROM short_urls WHERE short_code = ? LIMIT 1";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bind_param("s", $this->short_code);
+
+            if ($stmt->execute()) {
+                $result = $stmt->get_result();
+                $stmt->close();
+                if ($result->num_rows > 0) {
+
+                    //shortcode exists in database - return long url
+                    while ($data = $result->fetch_assoc()) {
+                        $long_url = $data['long_url'];
+                    }
+                    $this->setLongUrl($long_url);
+                    return $this->long_url;
+
+                } else {
+
+                    //shortcode not found - return error message
+                    return "Shortcode not found in database";
+                    
+                }
+            } else {
+                return "Error: " . $stmt->error();
             }
         }
     }
