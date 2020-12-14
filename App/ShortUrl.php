@@ -16,4 +16,16 @@ class ShortUrl
         $this->conn = $db;
     }
 
+    //set long url
+    function setUrl($url)
+    {
+        $this->long_url = $url;
+    }
+
+    //get long url
+    function getUrl()
+    {
+        return $this->long_url;
+    }
+
 }
