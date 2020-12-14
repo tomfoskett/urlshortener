@@ -3,10 +3,10 @@ class Database
 {
   
     // database credentials
-    private $host = "localhost";
-    private $db_name = "urlshortner";
-    private $username = "root";
-    private $password = "";
+    private $host = "localhost"; //SETUP - UPDATE THIS
+    private $db_name = "urlshortner"; //SETUP - UPDATE THIS
+    private $username = "root"; //SETUP - UPDATE THIS
+    private $password = ""; //SETUP - UPDATE THIS
     public $conn;
   
     // get the database connection
