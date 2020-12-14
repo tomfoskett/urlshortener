@@ -18,7 +18,7 @@ if (isset($_GET['url']) && $_GET['url'] != "") {
         $short_url = new ShortUrl($db);
         $short_url->setLongUrl($url);
 
-        echo $short_url->findShortCode();
+        echo "http://" . $_SERVER['HTTP_HOST'] . "/" . $short_url->findShortCode();
 
     } else {
         die("$url is not a valid URL");
